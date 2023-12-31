@@ -5,6 +5,7 @@ const app = express()
 const port = 3000
 
 app.get('/fetchTopCoins', coinApi.fetchTopCoins)
+app.get('/fetchCurrencies', coinApi.fetchCurrencies)
 app.get('/convert/:amount.:source_currency.:target_currency' , coinApi.convert)
 
 app.listen(port, () => {
