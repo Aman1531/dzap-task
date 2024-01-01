@@ -6,24 +6,27 @@ var coinListSource = []
 // same for target currency
 var coinListDest = []
 
+const apikey = 'x_cg_demo_api_key=CG-HVxG31BDG943mEUevP3BXZtx';
+const url = "https://api.coingecko.com/api/v3/";
+
 const coinApi ={
     fetchTopCoins: (req, res) => {
-        listcoins="https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=en"
+        listcoins=url+"coins/markets?"+apikey+"&vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&locale=en"
             axios.get(listcoins)
                 .then( response => {
                     if(coinListSource.length == 0) 
                      coinListSource =   response.data.map(({id}) => id)
                      
-                    res.json(response.data)
+                    res.json(response.data.map(({id,name}) => ({value:id , label:name})))
                 })
     },
     fetchCurrencies : (req , res) => {
-        axios.get("https://api.coingecko.com/api/v3/simple/supported_vs_currencies")
+        axios.get(url+"simple/supported_vs_currencies?"+apikey)
               .then( response => {
                 if(coinListDest.length == 0)
                   coinListDest = response.data
 
-                  res.json(response.data)
+                  res.json(response.data.map((id) => ({value:id , label:id})))
               })
     },
     convert : (req,res) => {
@@ -47,10 +50,10 @@ const coinApi ={
            res.status(401).json({error:"invalid target currency"})
             return
         }
-        let curr_params = "vs_currency="+req.params.target_currency+"&ids="+req.params.source_currency
-        let url="https://api.coingecko.com/api/v3/coins/markets?"+curr_params+"&order=market_cap_desc&per_page=1&page=1&sparkline=false&locale=en"
+        let curr_params = "&vs_currency="+req.params.target_currency+"&ids="+req.params.source_currency
+        let fetchUrl = url+"coins/markets?"+apikey+curr_params+"&order=market_cap_desc&per_page=1&page=1&sparkline=false&locale=en"
         
-        axios.get(url)
+        axios.get(fetchUrl)
              .then( response => {
                 console.log(response.data)
                 res.json({price:response.data[0].current_price*req.params.amount})
